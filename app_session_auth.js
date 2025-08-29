@@ -173,3 +173,11 @@ app.post("/logout",(req,res)=>{
 app.listen(7070,()=>{
     console.log("Server is running on http://localhost:7070")
 })
+
+
+
+
+
+// https://exam.testpad.chitkarauniversity.edu.in/test/25cs025-fa1-g
+
+// code - 7802

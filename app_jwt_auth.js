@@ -4,7 +4,6 @@ const bodyParser = require("body-parser")
 const jwt = require("jsonwebtoken")
 const cookieParser = require("cookie-parser")
 
-
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:true}))
@@ -23,7 +22,6 @@ function generateJwtToken(user){
 }
 
 
-
 function getDataFromToken(req,res,next){
     if(req.cookies.token){
      const data= jwt.verify(req.cookies.token,JWT_SECRET)
@@ -32,8 +30,8 @@ function getDataFromToken(req,res,next){
     }
     next()
 }
-app.use(getDataFromToken)
 
+app.use(getDataFromToken)
 
 //session config
 // app.use(
