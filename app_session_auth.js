@@ -1,9 +1,6 @@
 const express = require("express");
 const session = require("express-session")
 const bodyParser = require("body-parser")
-
-
-
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:true}))
@@ -30,9 +27,9 @@ app.use(
 
 //DB
 const users = [
-    {"id":1 ,"name":"shaan","email":"s@gmail.com","password":"secret"},
-    {"id":2 ,"name":"neeraj","email":"n@gmail.com","password":"secret"},
-    {"id":3 ,"name":"umair","email":"u@gmail.com","password":"secret"}
+    {"id":1 ,"name":"shaan","email":"s@gmail.com","password":"secret",role:"admin"},
+    {"id":2 ,"name":"neeraj","email":"n@gmail.com","password":"secret",role:"user"},
+    {"id":3 ,"name":"umair","email":"u@gmail.com","password":"secret",role:"user"}
 ] 
 
 //middlewares
@@ -57,6 +54,25 @@ const redirectHome = (req,res,next)=>{
     }
 }
  
+
+//middleware to check role
+const checkRole = (role) => {
+    return ((req,res,next)=>{
+        const {userId} = req.session;
+        const user = users.find(user => user.id == userId)
+        if(user && user.role === role){
+            //you will redirect to specific page 
+            next()
+        }
+        else{
+            res.status(403).send("<h1>Unautorized Access</h1>")
+        }
+    }
+    )
+}
+
+
+
 
 app.get("/",(req,res)=>{
     const {userId} = req.session
@@ -84,7 +100,9 @@ res.send(`
     <ul>
         <li>Name:${user.name}</li>
         <li>Email:${user.email}</li>
+        <li>Role:${user.role}</li>
     </ul>
+    <a href="/admin" >ADMIN</a>
     `)
 })
 
@@ -116,12 +134,19 @@ app.get("/register",(req,res)=>{
     `)
 })
 
+//admin page 
+app.get("/admin",checkRole("admin"),(req,res)=>{
+    res.send(`<h1>This is Admin Page</h1>`)
+})
+
+
+
 app.post("/login",(req,res)=>{
   const {email,password} =  req.body 
-    // console.log(email);
+    console.log(email);
     if(email && password){
             const user = users.find(user => user.email === email && user.password === password )
-        // console.log(user);
+        console.log(user);
         if(user){
             req.session.userId = user.id
             return res.redirect("/home")

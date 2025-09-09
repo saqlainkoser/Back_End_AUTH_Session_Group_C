@@ -21,17 +21,18 @@ function generateJwtToken(user){
 )
 }
 
-
-function getDataFromToken(req,res,next){
+function getDataFromToken(req,res,next) {
     if(req.cookies.token){
-     const data= jwt.verify(req.cookies.token,JWT_SECRET)
-     res.locals.user=data
-     console.log(res.locals.user);  
+    const token = req.cookies.token
+    const data = jwt.verify(token,JWT_SECRET)
+    console.log(data);
+    res.locals.user = data //global variable
     }
     next()
 }
 
 app.use(getDataFromToken)
+
 
 //session config
 // app.use(
@@ -84,11 +85,12 @@ const redirectHome = (req,res,next)=>{
  
 
 app.get("/",(req,res)=>{
-    const userId = 0
-    // const {userId} = req.session
+    // const userId = 0
+    const {user} = res.locals
+    const id = user ? user.id : 0
     res.send(`
     <h1>Welcome!</h1>
-    ${userId ? `
+    ${id ? `
         <a href="home">Home</a>
     <form action="/logout" method="POST">
         <button>Logout</button>
@@ -101,15 +103,15 @@ app.get("/",(req,res)=>{
 })
 
 app.get("/home",redirectLogin,(req,res)=>{
-    // const {userId} = req.session
-    // const user = users.find(user => user.id == userId)
+    const {user} = res.locals
+    const myUser = users.find(el => el.id == user.id)
     // console.log(user);
 res.send(`
     <h1>Home</h1>
     <a href='/'>Main</a>
     <ul>
-        <li>Name:</li>
-        <li>Email:</li>
+        <li>Name:${myUser.name}</li>
+        <li>Email:${myUser.email}</li>
     </ul>
     `)
 })
@@ -189,15 +191,10 @@ app.post("/register",(req,res)=>{
 app.post("/logout",(req,res)=>{
     //delete session
     //redirect to login
-    req.session.destroy(err =>{
-        if(err){
-            return res.redirect('/home')
-        }
-        res.clearCookie("sid")
+        res.clearCookie("token")
         res.redirect('/login')
-    }
-    )
-})
+    }   
+)
 
 
 
